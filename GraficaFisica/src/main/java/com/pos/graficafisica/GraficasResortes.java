@@ -6,7 +6,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 
-public class VentanaGraficas extends JFrame {
+public class GraficasResortes extends JFrame {
 
     private SimulacionResorte modelo;
     private ArrayList<double[]> listaDatos = new ArrayList<>();
@@ -20,7 +20,7 @@ public class VentanaGraficas extends JFrame {
     private static ArrayList<double[]> listaDatosEstatica;
     private static int contadorMuestreo = 0;
 
-    public VentanaGraficas(SimulacionResorte modelo) {
+    public GraficasResortes(SimulacionResorte modelo) {
         this.modelo = modelo;
         listaDatosEstatica = this.listaDatos;
         

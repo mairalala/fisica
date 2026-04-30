@@ -3,7 +3,7 @@ package com.pos.graficafisica;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimulacionFisica {
+public class SimulacionParabola {
 
     public double m = 0.25, h = 2.5, L = 4.0, g = 9.8, k = 100.0, x0 = 1.2;
     public double muRampa = 0.15;
@@ -12,6 +12,8 @@ public class SimulacionFisica {
     public double bViscoso = 0.05, cAire = 0.02;
     public double rotAngle = 0;
     public double vAngular = 0;
+
+    public double densidadAire = 1.225;
     private double radioEfectivo = 0.15;
 
     public double anguloRampa = 0, anguloLanzamiento = 0, anguloReboteAct = 0;
@@ -21,12 +23,15 @@ public class SimulacionFisica {
     public int numRebotes = 0;
     public List<double[]> historial = new ArrayList<>();
 
-    // 🔥 Nuevo: Ajustar propiedades físicas según material
+    public double getRadioEfectivo() {
+        return radioEfectivo;
+    } // Getter para el HUD
+
     public void configurarMaterial(String material) {
         switch (material) {
             case "Acero":
-                this.elasticidad = 0.55; // Rebota poco pero es pesado
-                this.muSuelo = 0.15;     // Desliza más
+                this.elasticidad = 0.55;
+                this.muSuelo = 0.15;
                 break;
             case "Madera":
                 this.elasticidad = 0.40;
@@ -38,12 +43,12 @@ public class SimulacionFisica {
                 break;
             case "Hielo":
                 this.elasticidad = 0.30;
-                this.muSuelo = 0.02;     // Casi nada de fricción
+                this.muSuelo = 0.02;
                 break;
             case "Goma":
             default:
-                this.elasticidad = 0.85; // Mucho rebote
-                this.muSuelo = 0.60;     // Mucha fricción
+                this.elasticidad = 0.85;
+                this.muSuelo = 0.60;
                 break;
         }
     }
@@ -54,7 +59,9 @@ public class SimulacionFisica {
         anguloLanzamiento = anguloRampa;
         double hipotenusaRampa = Math.sqrt(L * L + h * h);
 
-        // Conservación de energía con pérdida por fricción en rampa
+        // Cálculo dinámico del radio[cite: 2]
+        this.radioEfectivo = Math.pow((3 * m) / (4 * Math.PI * densidadAire), 1.0 / 3.0);
+
         double energiaElastica = 0.5 * k * Math.pow(x0, 2);
         double energiaPotencial = m * g * h;
         double trabajoFriccionRampa = muRampa * m * g * Math.cos(theta) * hipotenusaRampa;
@@ -82,73 +89,87 @@ public class SimulacionFisica {
         historial.clear();
     }
 
+    private double[] calcularAceleracion(double vx, double vy, double y) {
+        double vTotal = Math.sqrt(vx * vx + vy * vy);
+        double fResX = (bViscoso * vx) + (cAire * vTotal * vx);
+        double fResY = (bViscoso * vy) + (cAire * vTotal * vy);
+
+        double ax = -fResX / m;
+        double ay = -g - (fResY / m);
+
+        if (y <= 0.01) {
+            double fRozSuelo = muSuelo * m * g;
+            if (Math.abs(vx) > 0.01) {
+                ax -= (vx > 0 ? 1 : -1) * fRozSuelo / m;
+            }
+        }
+        return new double[]{ax, ay};
+    }
+
     public void avanzarPaso(double dt, double limiteX) {
-        // Fase de impulso por resorte (0 a 1 segundo de animación interna)
         if (t < 1.0) {
             t += dt * 2;
             vAngular = v1 / (radioEfectivo * 2);
             rotAngle += vAngular * dt;
             return;
         }
-        t += dt;
 
-        // Limite de seguridad de rebotes para evitar bucles infinitos
         if (currY > 0 || numRebotes < 25) {
-            double vTotal = vTotal();
+            // RK4 Implementation[cite: 2]
+            double[] a1 = calcularAceleracion(currVX, currVY, currY);
+            double k1vx = a1[0] * dt;
+            double k1vy = a1[1] * dt;
+            double k1x = currVX * dt;
+            double k1y = currVY * dt;
 
-            // Fuerzas de resistencia (Aire y Viscosidad)
-            double fResX = (bViscoso * currVX) + (cAire * vTotal * currVX);
-            double fResY = (bViscoso * currVY) + (cAire * vTotal * currVY);
+            double[] a2 = calcularAceleracion(currVX + k1vx / 2, currVY + k1vy / 2, currY + k1y / 2);
+            double k2vx = a2[0] * dt;
+            double k2vy = a2[1] * dt;
+            double k2x = (currVX + k1vx / 2) * dt;
+            double k2y = (currVY + k1vy / 2) * dt;
 
-            double ax = -fResX / m;
-            double ay = -g - (fResY / m);
+            double[] a3 = calcularAceleracion(currVX + k2vx / 2, currVY + k2vy / 2, currY + k2y / 2);
+            double k3vx = a3[0] * dt;
+            double k3vy = a3[1] * dt;
+            double k3x = (currVX + k2vx / 2) * dt;
+            double k3y = (currVY + k2vy / 2) * dt;
 
-            // Comportamiento en el suelo
+            double[] a4 = calcularAceleracion(currVX + k3vx, currVY + k3vy, currY + k3y);
+            double k4vx = a4[0] * dt;
+            double k4vy = a4[1] * dt;
+            double k4x = (currVX + k3vx) * dt;
+            double k4y = (currVY + k3vy) * dt;
+
+            currX += (k1x + 2 * k2x + 2 * k3x + k4x) / 6.0;
+            currY += (k1y + 2 * k2y + 2 * k3y + k4y) / 6.0;
+            currVX += (k1vx + 2 * k2vx + 2 * k3vx + k4vx) / 6.0;
+            currVY += (k1vy + 2 * k2vy + 2 * k3vy + k4vy) / 6.0;
+
+            double[] accFinal = calcularAceleracion(currVX, currVY, currY);
+            aceAct = Math.sqrt(accFinal[0] * accFinal[0] + accFinal[1] * accFinal[1]);
+
             if (currY <= 0.01) {
-                double fRozSuelo = muSuelo * m * g;
-                if (Math.abs(currVX) > 0.01) {
-                    // La fricción se opone al movimiento horizontal
-                    ax -= (currVX > 0 ? 1 : -1) * fRozSuelo / m;
-                    vAngular = currVX / radioEfectivo;
-                } else {
-                    vAngular *= 0.9; // Frenado por rotación
-                    currVX = 0;
-                }
+                vAngular = (Math.abs(currVX) > 0.01) ? currVX / radioEfectivo : vAngular * 0.9;
             } else {
-                vAngular *= 0.995; // Resistencia mínima al girar en el aire
+                vAngular *= 0.995;
             }
-
-            // Integración de Euler
-            currVX += ax * dt;
-            currVY += ay * dt;
-            currX += currVX * dt;
-            currY += currVY * dt;
             rotAngle += vAngular * dt;
-            aceAct = Math.sqrt(ax * ax + ay * ay);
+            t += dt;
 
-            // Detección de Colisión con el suelo
             if (currY <= 0) {
                 currY = 0;
-                // Aplicar coeficiente de restitución (elasticidad)
                 currVY = -currVY * elasticidad;
-
-                // Pérdida de velocidad horizontal por el impacto
                 currVX *= (0.85 + (elasticidad * 0.1));
-
                 if (Math.abs(currVX) > 0.01) {
                     anguloReboteAct = Math.toDegrees(Math.atan2(currVY, currVX));
                 }
-
                 numRebotes++;
-
-                // Umbral para detener rebotes muy pequeños (evitar efecto "jitter")
                 if (Math.abs(currVY) < 0.15) {
                     currVY = 0;
                 }
             }
         }
 
-        // Condición de parada total
         if (Math.abs(currVX) < 0.02 && Math.abs(currVY) < 0.02 && currY <= 0) {
             currVX = 0;
             currVY = 0;
@@ -165,14 +186,7 @@ public class SimulacionFisica {
         historial.add(new double[]{t, currX, currY, vTotal(), aceAct});
     }
 
-    public double getEnergiaMecanicaTotal() {
-        double cinetica = 0.5 * m * Math.pow(vTotal(), 2);
-        double potencial = m * g * currY;
-        return cinetica + potencial;
-    }
-
     public double getMaxEnergiaInicial() {
-        // Energía total con la que empieza el vuelo (al final de la rampa)
         return 0.5 * m * Math.pow(v1, 2) + (m * g * h);
     }
 

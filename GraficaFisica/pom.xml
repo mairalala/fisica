@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
-        <exec.mainClass>com.pos.graficafisica.GraficaFisica</exec.mainClass>
+        <mainClass>com.pos.graficafisica.start</mainClass>    
     </properties>
 
     <dependencies>

@@ -27,8 +27,9 @@ public class MenuPrincipal extends JFrame {
         panelBotones.setBackground(new Color(33, 47, 61));
         panelBotones.setBorder(new EmptyBorder(20, 50, 50, 50));
 
+        // CORRECCIÓN: Ahora llama a LaboratorioParabolas en lugar de GraficaParabolas
         panelBotones.add(crearBotonModulo("DINÁMICA Y GEOMETRÍA", "Rampa, Fricción y Lanzamiento", e -> {
-            new GraficaFisica().setVisible(true);
+            new LaboratorioParabolas().setVisible(true);
             this.dispose();
         }));
 
