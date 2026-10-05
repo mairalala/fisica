@@ -1,13 +1,17 @@
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\ConexionDB.java
+D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\GraficaCatapulta.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\GraficaParabolas.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\GraficasResortes.java
+D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\LaboratorioCatapulta.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\LaboratorioParabolas.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\LaboratorioResorte.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\MenuPrincipal.java
+D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\PanelCatapulta.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\PanelGrafico.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\PanelParabola.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\PanelResorte.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\PantallaCarga.java
+D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\SimulacionCatapulta.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\SimulacionParabola.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\SimulacionResorte.java
 D:\GitHub\fisica\GraficaFisica\src\main\java\com\pos\graficafisica\start.java
