@@ -4,22 +4,22 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
-import java.util.ArrayList;
+import java.util.List;
 
 public class PanelGrafico extends JPanel {
 
     private String tit;
-    private ArrayList<double[]> datos;
+    private List<double[]> datos;
     private int idx;
     private Color col;
 
-    private static int puntoCorte = -1; 
+    private static int puntoCorte = -1;
     private static boolean modoResaltado = false;
-    
-    // --- VARIABLE DE ZOOM ---
-    private double zoomFactor = 1.0; 
 
-    public PanelGrafico(String t, ArrayList<double[]> d, int i, Color c) {
+    // --- VARIABLE DE ZOOM ---
+    private double zoomFactor = 1.0;
+
+    public PanelGrafico(String t, List<double[]> d, int i, Color c) {
         this.tit = t;
         this.datos = d;
         this.idx = i;
@@ -44,7 +44,7 @@ public class PanelGrafico extends JPanel {
         configurarKeyBindings();
     }
 
-    // --- NUEVOS MÉTODOS (GETTER Y SETTER) PARA SOLUCIONAR EL ERROR ---
+    // --- GETTER Y SETTER DE ZOOM ---
     public double getZoomFactor() {
         return zoomFactor;
     }
@@ -84,16 +84,16 @@ public class PanelGrafico extends JPanel {
         int h = getHeight();
         int padding = 50;
 
-        double maxAbsY = 0.1; 
-        double maxTime = 10.0; 
+        double maxAbsY = 0.1;
+        double maxTime = 10.0;
 
         if (datos != null && !datos.isEmpty()) {
             int limiteBusqueda = (puntoCorte == -1) ? datos.size() : Math.min(puntoCorte, datos.size());
             for (int i = 0; i < limiteBusqueda; i++) {
                 double[] d = datos.get(i);
-                if (idx == 4) { 
+                if (idx == 4) {
                     maxAbsY = Math.max(maxAbsY, Math.abs(d[2]));
-                    maxTime = Math.max(maxTime, Math.abs(d[1])); 
+                    maxTime = Math.max(maxTime, Math.abs(d[1]));
                 } else {
                     maxAbsY = Math.max(maxAbsY, Math.abs(d[idx]));
                     maxTime = Math.max(maxTime, d[0]);
@@ -105,7 +105,7 @@ public class PanelGrafico extends JPanel {
         for (int i = 0; i < w; i += 40) g2.drawLine(i, 0, i, h);
         for (int i = 0; i < h; i += 40) g2.drawLine(0, i, w, i);
 
-        int ejeY = h / 2; 
+        int ejeY = h / 2;
         int ejeX_Centro = w / 2;
         g2.setColor(new Color(100, 100, 120));
 
@@ -153,7 +153,7 @@ public class PanelGrafico extends JPanel {
         g2.setStroke(new BasicStroke(4f));
         g2.setColor(new Color(col.getRed(), col.getGreen(), col.getBlue(), 40));
         g2.draw(path);
-        
+
         g2.setColor(modoResaltado ? Color.WHITE : col);
         g2.setStroke(new BasicStroke(2.0f));
         g2.draw(path);

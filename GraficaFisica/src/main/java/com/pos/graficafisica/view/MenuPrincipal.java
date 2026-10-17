@@ -8,7 +8,7 @@ public class MenuPrincipal extends JFrame {
 
     public MenuPrincipal() {
         setTitle("Laboratorio Virtual de Física - TEINCO");
-        setSize(880, 520);
+        setSize(1000, 680);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -39,9 +39,9 @@ public class MenuPrincipal extends JFrame {
         panelPrincipal.add(panelSuperior, BorderLayout.NORTH);
 
         // Panel central de botones con rejilla espaciada
-        JPanel panelBotones = new JPanel(new GridLayout(1, 3, 22, 0));
+        JPanel panelBotones = new JPanel(new GridLayout(2, 2, 22, 18));
         panelBotones.setOpaque(false);
-        panelBotones.setBorder(new EmptyBorder(10, 45, 55, 45));
+        panelBotones.setBorder(new EmptyBorder(10, 80, 45, 80));
 
         panelBotones.add(crearBotonModulo("DINÁMICA Y GEOMETRÍA", "Rampa, Fricción y Lanzamiento", e -> {
             new LaboratorioParabolas().setVisible(true);
@@ -55,6 +55,11 @@ public class MenuPrincipal extends JFrame {
 
         panelBotones.add(crearBotonModulo("CATAPULTAS", "Simulación y Resistencia", e -> {
             new LaboratorioCatapulta().setVisible(true);
+            this.dispose();
+        }));
+
+        panelBotones.add(crearBotonModulo("LEYES DE NEWTON", "Inercia, fuerza y acción-reacción", e -> {
+            new LaboratorioNewton().setVisible(true);
             this.dispose();
         }));
 

@@ -51,11 +51,24 @@ public class ConexionDB {
                 + "fecha DATETIME DEFAULT CURRENT_TIMESTAMP"
                 + ");";
 
+        String sqlNewton = "CREATE TABLE IF NOT EXISTS historial_newton ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "ley TEXT, "
+                + "masa REAL, "
+                + "masa_b REAL, "
+                + "fuerza REAL, "
+                + "aceleracion_a REAL, "
+                + "aceleracion_b REAL, "
+                + "tiempo_total REAL, "
+                + "fecha DATETIME DEFAULT CURRENT_TIMESTAMP"
+                + ");";
+
         try (Connection conn = conectar(); Statement stmt = conn.createStatement()) {
             if (conn != null) {
                 stmt.execute(sqlResorte);
                 stmt.execute(sqlParabola);
                 stmt.execute(sqlCatapulta);
+                stmt.execute(sqlNewton);
                 System.out.println("Tablas de base de datos inicializadas correctamente.");
             }
         } catch (Exception e) {
@@ -148,12 +161,8 @@ public class ConexionDB {
         );
         String sql = "SELECT * FROM historial_catapulta ORDER BY fecha DESC";
 
-        System.out.println("-> [BD] Consultando ruta de BD: " + new java.io.File("grafica_fisica.db").getAbsolutePath());
-
         try (Connection conn = conectar(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-            int contador = 0;
             while (rs.next()) {
-                contador++;
                 modelo.addRow(new Object[]{
                         rs.getInt("id"),
                         rs.getDouble("masa"),
@@ -166,9 +175,53 @@ public class ConexionDB {
                         rs.getString("fecha")
                 });
             }
-            System.out.println("-> [BD] Registros encontrados en historial_catapulta: " + contador);
         } catch (Exception e) {
             System.out.println("-> [BD] Error al obtener historial de catapultas: " + e.getMessage());
+        }
+        return modelo;
+    }
+
+    // --- MÉTODOS PARA LEYES DE NEWTON ---
+
+    public static void guardarSimulacionNewton(String ley, double masa, double masaB, double fuerza,
+                                               double aceleracionA, double aceleracionB, double tiempoTotal) {
+        String sql = "INSERT INTO historial_newton (ley, masa, masa_b, fuerza, aceleracion_a, aceleracion_b, tiempo_total) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = conectar(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, ley);
+            pstmt.setDouble(2, masa);
+            pstmt.setDouble(3, masaB);
+            pstmt.setDouble(4, fuerza);
+            pstmt.setDouble(5, aceleracionA);
+            pstmt.setDouble(6, aceleracionB);
+            pstmt.setDouble(7, tiempoTotal);
+            pstmt.executeUpdate();
+            System.out.println("-> [BD] Simulación de Leyes de Newton guardada exitosamente.");
+        } catch (Exception e) {
+            System.out.println("-> [BD] Error al guardar simulación de Newton: " + e.getMessage());
+        }
+    }
+
+    public static DefaultTableModel obtenerHistorialNewton() {
+        DefaultTableModel modelo = new DefaultTableModel(
+                new Object[]{"ID", "Ley", "Masa A (kg)", "Masa B (kg)", "Fuerza (N)", "Acel. A (m/s²)", "Acel. B (m/s²)", "Tiempo (s)", "Fecha"}, 0
+        );
+        String sql = "SELECT * FROM historial_newton ORDER BY fecha DESC";
+        try (Connection conn = conectar(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                modelo.addRow(new Object[]{
+                        rs.getInt("id"),
+                        rs.getString("ley"),
+                        rs.getDouble("masa"),
+                        rs.getDouble("masa_b"),
+                        rs.getDouble("fuerza"),
+                        rs.getDouble("aceleracion_a"),
+                        rs.getDouble("aceleracion_b"),
+                        rs.getDouble("tiempo_total"),
+                        rs.getString("fecha")
+                });
+            }
+        } catch (Exception e) {
+            System.out.println("-> [BD] Error al obtener historial de Newton: " + e.getMessage());
         }
         return modelo;
     }
